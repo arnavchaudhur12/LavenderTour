@@ -2,15 +2,13 @@ pipeline {
   agent any
 
   parameters {
-    string(name: 'IMAGE_TAG', defaultValue: '', description: 'Optional image tag override')
     booleanParam(name: 'DEPLOY', defaultValue: true, description: 'Deploy after build')
   }
 
   environment {
-    APP_NAME = 'lavendertour'
-    AWS_REGION = 'ap-south-1'
-    ECR_REGISTRY = credentials('aws-ecr-registry')
-    SSH_KEY = 'lavendertour-ssh'
+    VPS_HOST = '31.97.202.218'
+    VPS_USER = 'root'
+    SSH_CREDENTIALS = 'lavendertour-vps-ssh'
   }
 
   stages {
@@ -20,7 +18,7 @@ pipeline {
       }
     }
 
-    stage('Resolve Build Metadata') {
+    stage('Resolve Environment') {
       steps {
         script {
           env.RESOLVED_ENV = [
@@ -31,16 +29,8 @@ pipeline {
           ][env.BRANCH_NAME]
 
           if (!env.RESOLVED_ENV) {
-            error("Unsupported branch '${env.BRANCH_NAME}'. This pipeline only deploys dev, stage, prod, or main.")
+            error("Unsupported branch '${env.BRANCH_NAME}'. Only dev, stage, prod, or main are deployable.")
           }
-
-          env.GIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-          env.RESOLVED_TAG = params.IMAGE_TAG?.trim() ? params.IMAGE_TAG.trim() : "${env.RESOLVED_ENV}-${env.BUILD_NUMBER}-${env.GIT_SHA}"
-          env.DEPLOY_HOST = [
-            dev: 'dev.lavendertour.in',
-            stage: 'stage.lavendertour.in',
-            prod: 'lavendertour.in'
-          ][env.RESOLVED_ENV]
         }
       }
     }
@@ -58,51 +48,21 @@ pipeline {
     stage('Frontend Verify') {
       steps {
         dir('frontend') {
-          sh 'npm ci'
-          sh 'npm run build'
+          sh 'export PATH="/opt/homebrew/opt/node@20/bin:$PATH" && npm ci'
+          sh 'export PATH="/opt/homebrew/opt/node@20/bin:$PATH" && npm run build'
         }
       }
     }
 
-    stage('Docker Build') {
-      steps {
-        sh "docker build -t ${APP_NAME}-backend:${RESOLVED_TAG} ./backend"
-        sh "docker build -t ${APP_NAME}-frontend:${RESOLVED_TAG} ./frontend"
-      }
-    }
-
-    stage('Push Images') {
-      when {
-        expression { return env.RESOLVED_ENV != 'dev' }
-      }
-      steps {
-        sh """
-          docker tag ${APP_NAME}-backend:${RESOLVED_TAG} ${ECR_REGISTRY}/${APP_NAME}-backend:${RESOLVED_TAG}
-          docker tag ${APP_NAME}-frontend:${RESOLVED_TAG} ${ECR_REGISTRY}/${APP_NAME}-frontend:${RESOLVED_TAG}
-          aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-          docker push ${ECR_REGISTRY}/${APP_NAME}-backend:${RESOLVED_TAG}
-          docker push ${ECR_REGISTRY}/${APP_NAME}-frontend:${RESOLVED_TAG}
-        """
-      }
-    }
-
-    stage('Deploy') {
+    stage('Deploy To VPS') {
       when {
         expression { return params.DEPLOY }
       }
       steps {
-        withCredentials([
-          sshUserPrivateKey(credentialsId: env.SSH_KEY, keyFileVariable: 'SSH_PRIVATE_KEY', usernameVariable: 'SSH_USER')
-        ]) {
+        sshagent(credentials: [env.SSH_CREDENTIALS]) {
           sh """
-            chmod +x deploy/deploy.sh
-            TARGET_ENV=${RESOLVED_ENV} \\
-            IMAGE_TAG=${RESOLVED_TAG} \\
-            DEPLOY_HOST=${DEPLOY_HOST} \\
-            ECR_REGISTRY=${ECR_REGISTRY} \\
-            SSH_USER=${SSH_USER} \\
-            SSH_PRIVATE_KEY=${SSH_PRIVATE_KEY} \\
-            ./deploy/deploy.sh
+            ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} \\
+              '/opt/lavendertour/deploy-by-branch.sh ${RESOLVED_ENV}'
           """
         }
       }

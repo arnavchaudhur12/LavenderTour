@@ -35,23 +35,23 @@ Frontend runs on `http://localhost:3000`. Backend runs on `http://localhost:8000
 Jenkins runs on `http://localhost:8080`.
 
 ## Jenkins requirements
-Create these Jenkins credentials before enabling deploys:
-- `aws-ecr-registry` - registry hostname or credential wrapper for ECR
-- `lavendertour-ssh` - SSH private key for the target server
+Create this Jenkins credential before enabling deploys:
+- `lavendertour-vps-ssh` - SSH private key that can log into the VPS as `root`
 
 Install these tools on the Jenkins node:
-- Docker + Docker Compose plugin
+- Git
 - Python 3
 - Node.js 20 + npm
-- AWS CLI
+- SSH Agent plugin
 
-The repository includes a Jenkins container image under `jenkins/` that installs those tools locally.
+The pipeline verifies the backend and frontend locally, then deploys by SSH to the VPS and runs `/opt/lavendertour/deploy-by-branch.sh`.
 
 ## Jenkins job setup
 1. Create one Jenkins `Multibranch Pipeline` job pointed at the GitHub repository.
 2. Configure branch discovery for `dev`, `stage`, and `prod`.
 3. Add GitHub webhook support so pushes and merges trigger indexing automatically.
-4. Jenkins will then expose three separate branch builds using the same `Jenkinsfile`.
+4. Jenkins will expose separate branch jobs for `dev`, `stage`, and `prod`.
+5. Each branch job runs local verification and then SSHes to the VPS to deploy the matching environment.
 
 The `Jenkinsfile` maps branches like this:
 - `dev` -> deploy to development
