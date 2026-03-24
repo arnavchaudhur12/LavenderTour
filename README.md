@@ -26,8 +26,11 @@ Jenkins should be configured so:
    `cd backend && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt && uvicorn app.main:app --reload`
 3. Docker:
    `docker compose up --build`
+4. Jenkins:
+   `docker compose -f docker-compose.jenkins.yml up --build -d`
 
 Frontend runs on `http://localhost:3000`. Backend runs on `http://localhost:8000`.
+Jenkins runs on `http://localhost:8080`.
 
 ## Jenkins requirements
 Create these Jenkins credentials before enabling deploys:
@@ -39,6 +42,8 @@ Install these tools on the Jenkins node:
 - Python 3
 - Node.js 20 + npm
 - AWS CLI
+
+The repository includes a Jenkins container image under `jenkins/` that installs those tools locally.
 
 ## Environment files
 Use the provided templates as a starting point:
