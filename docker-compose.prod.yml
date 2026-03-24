@@ -1,0 +1,19 @@
+services:
+  backend:
+    image: ${ECR_REGISTRY:-lavendertour}/lavendertour-backend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file:
+      - .env.${TARGET_ENV:-prod}
+    ports:
+      - "8000:8000"
+
+  frontend:
+    image: ${ECR_REGISTRY:-lavendertour}/lavendertour-frontend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://lavendertour.in/api}
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend

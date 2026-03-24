@@ -1,0 +1,19 @@
+# Node
+node_modules
+.next
+out
+# Python
+__pycache__
+.venv
+*.pyc
+# Env/config
+.env
+.env.*
+.envrc
+# Editor
+.DS_Store
+.idea
+.vscode
+# Local data
+*.sqlite3
+coverage
