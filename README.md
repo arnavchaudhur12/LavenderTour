@@ -53,6 +53,10 @@ The pipeline verifies the backend and frontend locally, then deploys by SSH to t
 4. Jenkins will expose separate branch jobs for `dev`, `stage`, and `prod`.
 5. Each branch job runs local verification and then SSHes to the VPS to deploy the matching environment.
 
+For the full SCM, credentials, and webhook setup, see:
+- `docs/JENKINS_SCM_SETUP.md`
+- `deploy/vps-deploy-by-branch.sh`
+
 The `Jenkinsfile` maps branches like this:
 - `dev` -> deploy to development
 - `stage` -> deploy to staging
