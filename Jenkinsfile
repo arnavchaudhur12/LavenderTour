@@ -2,7 +2,6 @@ pipeline {
   agent any
 
   parameters {
-    choice(name: 'TARGET_ENV', choices: ['dev', 'stage', 'prod'], description: 'Deployment environment')
     string(name: 'IMAGE_TAG', defaultValue: '', description: 'Optional image tag override')
     booleanParam(name: 'DEPLOY', defaultValue: true, description: 'Deploy after build')
   }
@@ -24,13 +23,24 @@ pipeline {
     stage('Resolve Build Metadata') {
       steps {
         script {
+          env.RESOLVED_ENV = [
+            'dev': 'dev',
+            'stage': 'stage',
+            'prod': 'prod',
+            'main': 'prod'
+          ][env.BRANCH_NAME]
+
+          if (!env.RESOLVED_ENV) {
+            error("Unsupported branch '${env.BRANCH_NAME}'. This pipeline only deploys dev, stage, prod, or main.")
+          }
+
           env.GIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-          env.RESOLVED_TAG = params.IMAGE_TAG?.trim() ? params.IMAGE_TAG.trim() : "${params.TARGET_ENV}-${env.BUILD_NUMBER}-${env.GIT_SHA}"
+          env.RESOLVED_TAG = params.IMAGE_TAG?.trim() ? params.IMAGE_TAG.trim() : "${env.RESOLVED_ENV}-${env.BUILD_NUMBER}-${env.GIT_SHA}"
           env.DEPLOY_HOST = [
             dev: 'dev.lavendertour.in',
             stage: 'stage.lavendertour.in',
             prod: 'lavendertour.in'
-          ][params.TARGET_ENV]
+          ][env.RESOLVED_ENV]
         }
       }
     }
@@ -63,7 +73,7 @@ pipeline {
 
     stage('Push Images') {
       when {
-        expression { return params.TARGET_ENV != 'dev' }
+        expression { return env.RESOLVED_ENV != 'dev' }
       }
       steps {
         sh """
@@ -86,7 +96,7 @@ pipeline {
         ]) {
           sh """
             chmod +x deploy/deploy.sh
-            TARGET_ENV=${params.TARGET_ENV} \\
+            TARGET_ENV=${RESOLVED_ENV} \\
             IMAGE_TAG=${RESOLVED_TAG} \\
             DEPLOY_HOST=${DEPLOY_HOST} \\
             ECR_REGISTRY=${ECR_REGISTRY} \\

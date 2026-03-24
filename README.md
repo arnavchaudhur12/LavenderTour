@@ -14,10 +14,12 @@ Initial scaffold for `lavendertour.in` with Next.js (frontend) and FastAPI (back
 - `stage` - pre-production validation branch.
 - `prod` - deployment branch for production releases.
 
-Jenkins should be configured so:
-- pushes to `dev` build and deploy to the development environment
-- pushes to `stage` build and deploy to staging
-- pushes to `prod` build and deploy to production
+Jenkins should be configured as a multibranch pipeline so it creates separate jobs for:
+- `dev` -> development build and deployment
+- `stage` -> staging build and deployment
+- `prod` -> production build and deployment
+
+Each merge to one of those branches should trigger only that branch's job.
 
 ## Local quick start
 1. Frontend:
@@ -44,6 +46,18 @@ Install these tools on the Jenkins node:
 - AWS CLI
 
 The repository includes a Jenkins container image under `jenkins/` that installs those tools locally.
+
+## Jenkins job setup
+1. Create one Jenkins `Multibranch Pipeline` job pointed at the GitHub repository.
+2. Configure branch discovery for `dev`, `stage`, and `prod`.
+3. Add GitHub webhook support so pushes and merges trigger indexing automatically.
+4. Jenkins will then expose three separate branch builds using the same `Jenkinsfile`.
+
+The `Jenkinsfile` maps branches like this:
+- `dev` -> deploy to development
+- `stage` -> deploy to staging
+- `prod` -> deploy to production
+- `main` -> treated as production if you keep using it
 
 ## Environment files
 Use the provided templates as a starting point:
