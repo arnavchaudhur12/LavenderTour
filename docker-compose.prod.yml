@@ -4,6 +4,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env.${TARGET_ENV:-prod}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "8000:8000"
 

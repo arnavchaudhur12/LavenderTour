@@ -9,6 +9,9 @@ __pycache__
 # Env/config
 .env
 .env.*
+!.env.dev.example
+!.env.stage.example
+!.env.prod.example
 .envrc
 # Editor
 .DS_Store

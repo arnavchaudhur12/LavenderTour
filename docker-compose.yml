@@ -1,10 +1,23 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: lavendertour
+      POSTGRES_USER: lavender
+      POSTGRES_PASSWORD: lavender
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
   backend:
     build: ./backend
     ports:
       - "8000:8000"
     environment:
       - ENV=dev
+      - DATABASE_URL=postgresql+psycopg://lavender:lavender@postgres:5432/lavendertour
+    depends_on:
+      - postgres
   frontend:
     build: ./frontend
     ports:
@@ -13,3 +26,6 @@ services:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
     depends_on:
       - backend
+
+volumes:
+  postgres_data:

@@ -4,7 +4,7 @@ Initial scaffold for `lavendertour.in` with Next.js (frontend) and FastAPI (back
 
 ## Structure
 - `frontend/` - Next.js 14 App Router UI.
-- `backend/` - FastAPI service.
+- `backend/` - FastAPI service with PostgreSQL persistence for OTPs, users, quotes, and destinations.
 - `docker-compose.yml` - local development stack.
 - `docker-compose.prod.yml` - runtime compose file for deployed environments.
 - `deploy/deploy.sh` - SSH-based deployment script for Jenkins.
@@ -33,6 +33,27 @@ Each merge to one of those branches should trigger only that branch's job.
 
 Frontend runs on `http://localhost:3000`. Backend runs on `http://localhost:8000`.
 Jenkins runs on `http://localhost:8080`.
+
+## Backend database
+
+The backend now expects PostgreSQL through `DATABASE_URL`.
+
+Local Docker Compose starts Postgres automatically with:
+- database: `lavendertour`
+- user: `lavender`
+- password: `lavender`
+
+Tables are created on startup and seed destination data is inserted automatically.
+
+For the VPS deployment model used in production/stage/dev:
+- PostgreSQL runs on the VPS host
+- backend containers connect through `host.docker.internal`
+- Linux Docker hosts need `extra_hosts: ["host.docker.internal:host-gateway"]`, which is already included in `docker-compose.prod.yml`
+
+Suggested VPS databases:
+- `lavendertour_prod`
+- `lavendertour_stage`
+- `lavendertour_dev`
 
 ## Jenkins requirements
 Create this Jenkins credential before enabling deploys:
