@@ -4,7 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import router as api_router
 from app.core.config import get_settings
 from app.core.db import Base, SessionLocal, engine
-from app.models import Destination, OTPCode, Quote, User
+from app.models.auth_user import AuthUser, PasswordResetToken
+from app.models.destination import Destination
+from app.models.quote import Quote
 from app.services.bootstrap import seed_destinations
 
 settings = get_settings()

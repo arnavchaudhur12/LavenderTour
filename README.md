@@ -4,7 +4,7 @@ Initial scaffold for `lavendertour.in` with Next.js (frontend) and FastAPI (back
 
 ## Structure
 - `frontend/` - Next.js 14 App Router UI.
-- `backend/` - FastAPI service with PostgreSQL persistence for OTPs, users, quotes, and destinations.
+- `backend/` - FastAPI service with PostgreSQL persistence for email/password auth, quotes, and destinations.
 - `docker-compose.yml` - local development stack.
 - `docker-compose.prod.yml` - runtime compose file for deployed environments.
 - `deploy/deploy.sh` - SSH-based deployment script for Jenkins.
@@ -34,9 +34,20 @@ Each merge to one of those branches should trigger only that branch's job.
 Frontend runs on `http://localhost:3000`. Backend runs on `http://localhost:8000`.
 Jenkins runs on `http://localhost:8080`.
 
-## Backend database
+## Backend database and auth
 
 The backend now expects PostgreSQL through `DATABASE_URL`.
+
+Authentication endpoints:
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/forgot-password`
+- `POST /api/auth/reset-password`
+
+Password reset email delivery is configurable:
+- `EMAIL_DELIVERY_BACKEND=console` logs the reset link server-side for development
+- `EMAIL_DELIVERY_BACKEND=smtp` sends the reset email through your mailbox SMTP server
+- `EMAIL_DEBUG_RETURN_TOKEN=true` includes the reset token in the API response for local testing only
 
 Local Docker Compose starts Postgres automatically with:
 - database: `lavendertour`
