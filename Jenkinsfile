@@ -59,9 +59,11 @@ pipeline {
         expression { return params.DEPLOY }
       }
       steps {
-        sshagent(credentials: [env.SSH_CREDENTIALS]) {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: env.SSH_CREDENTIALS, keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USERNAME')
+        ]) {
           sh """
-            ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} \\
+            ssh -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no ${SSH_USERNAME}@${VPS_HOST} \\
               '/opt/lavendertour/deploy-by-branch.sh ${RESOLVED_ENV}'
           """
         }
