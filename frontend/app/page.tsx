@@ -19,7 +19,7 @@ export default function HomePage() {
               shortlist options.
             </p>
             <div className="flex gap-3 text-sm text-night/70">
-              <span className="px-3 py-1 rounded-full bg-white/80 border border-night/5">OTP login ready</span>
+              <span className="px-3 py-1 rounded-full bg-white/80 border border-night/5">Email login ready</span>
               <span className="px-3 py-1 rounded-full bg-white/80 border border-night/5">Agent portal</span>
               <span className="px-3 py-1 rounded-full bg-white/80 border border-night/5">India + Intl</span>
             </div>
@@ -27,7 +27,7 @@ export default function HomePage() {
           <div className="bg-white/70 border border-night/5 rounded-3xl p-6 shadow-lg glow">
             <p className="text-sm text-night/60 mb-2">Quick Overview</p>
             <ul className="space-y-2 text-night/80 text-sm">
-              <li>• OTP-based signup/login for customers and agents</li>
+              <li>• Email/password login for customers and agents</li>
               <li>• Recommendations engine based on your answers</li>
               <li>• Hand-off to WhatsApp/Instagram/email for quotes</li>
               <li>• High availability on AWS (ECS + RDS + Redis)</li>

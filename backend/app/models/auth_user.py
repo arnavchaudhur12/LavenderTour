@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -6,27 +7,30 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.db import Base
 
 
-class User(Base):
-    __tablename__ = "users"
+class AuthUser(Base):
+    __tablename__ = "auth_users"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     phone: Mapped[str] = mapped_column(String(20), unique=True, index=True)
+    password_hash: Mapped[str] = mapped_column(String(255))
     role: Mapped[str] = mapped_column(String(20), default="customer")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
-    otp_codes: Mapped[list["OTPCode"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    password_reset_tokens: Mapped[list["PasswordResetToken"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
 
-class OTPCode(Base):
-    __tablename__ = "otp_codes"
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    phone: Mapped[str] = mapped_column(String(20), index=True)
-    code: Mapped[str] = mapped_column(String(8))
+    token: Mapped[str] = mapped_column(String(128), unique=True, index=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime)
     is_used: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("auth_users.id"), nullable=True)
 
-    user: Mapped[User | None] = relationship(back_populates="otp_codes")
+    user: Mapped[Optional[AuthUser]] = relationship(back_populates="password_reset_tokens")
