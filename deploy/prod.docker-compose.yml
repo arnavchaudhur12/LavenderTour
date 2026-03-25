@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: /opt/lavendertour/repo/backend
+    container_name: lavendertour-backend-prod
+    restart: unless-stopped
+    env_file:
+      - /opt/lavendertour/prod/.env.prod
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8001:8000"
+
+  frontend:
+    build:
+      context: /opt/lavendertour/repo/frontend
+    container_name: lavendertour-frontend-prod
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: https://lavendertour.in/api
+      NODE_ENV: production
+    ports:
+      - "4000:3000"
+    depends_on:
+      - backend
