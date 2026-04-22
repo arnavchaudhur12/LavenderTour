@@ -49,6 +49,7 @@ function LoginPageContent() {
   const [message, setMessage] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [showPasswords, setShowPasswords] = useState(false);
 
   const title = useMemo(() => {
     if (mode === 'register') return 'Create your account';
@@ -210,7 +211,7 @@ function LoginPageContent() {
               {(mode === 'login' || mode === 'register' || mode === 'reset') && (
                 <Field
                   label={mode === 'reset' ? 'New password' : 'Password'}
-                  type="password"
+                  type={showPasswords ? 'text' : 'password'}
                   value={form.password}
                   onChange={(value) => setForm((current) => ({ ...current, password: value }))}
                   placeholder="Minimum 8 characters"
@@ -220,11 +221,23 @@ function LoginPageContent() {
               {(mode === 'register' || mode === 'reset') && (
                 <Field
                   label="Confirm password"
-                  type="password"
+                  type={showPasswords ? 'text' : 'password'}
                   value={form.confirmPassword}
                   onChange={(value) => setForm((current) => ({ ...current, confirmPassword: value }))}
                   placeholder="Repeat your password"
                 />
+              )}
+
+              {(mode === 'login' || mode === 'register' || mode === 'reset') && (
+                <label className="flex items-center gap-2 text-sm text-night/70">
+                  <input
+                    type="checkbox"
+                    checked={showPasswords}
+                    onChange={() => setShowPasswords((current) => !current)}
+                    className="accent-lavender-600"
+                  />
+                  Show password
+                </label>
               )}
 
               {mode === 'reset' && (

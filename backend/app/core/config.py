@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     email_delivery_backend: Literal["console", "smtp"] = "console"
     email_debug_return_token: bool = False
     email_from_address: Optional[str] = None
+    customer_care_email: Optional[str] = None
     smtp_host: Optional[str] = None
     smtp_port: int = 465
     smtp_username: Optional[str] = None

@@ -27,6 +27,22 @@ def send_password_reset_email(email: str, reset_token: str, settings: Settings) 
     raise RuntimeError(f"Unsupported email delivery backend: {settings.email_delivery_backend}")
 
 
+def send_customer_enquiry_email(subject: str, body: str, settings: Settings) -> None:
+    inbox = settings.customer_care_email or settings.email_from_address
+    if not inbox:
+        raise RuntimeError("CUSTOMER_CARE_EMAIL or EMAIL_FROM_ADDRESS is required for enquiry delivery")
+
+    if settings.email_delivery_backend == "console":
+        logger.info("Customer enquiry to %s\nSubject: %s\n\n%s", inbox, subject, body)
+        return
+
+    if settings.email_delivery_backend == "smtp":
+        _send_via_smtp(inbox, subject, body, settings)
+        return
+
+    raise RuntimeError(f"Unsupported email delivery backend: {settings.email_delivery_backend}")
+
+
 def _send_via_smtp(email: str, subject: str, body: str, settings: Settings) -> None:
     if not settings.smtp_host:
         raise RuntimeError("SMTP_HOST is required for smtp email delivery")
@@ -53,4 +69,4 @@ def _send_via_smtp(email: str, subject: str, body: str, settings: Settings) -> N
                 smtp.login(settings.smtp_username, settings.smtp_password)
                 smtp.send_message(message)
     except smtplib.SMTPException as exc:
-        raise RuntimeError("Failed to send password reset email") from exc
+        raise RuntimeError("Failed to send email") from exc
