@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import inspect, text
 
 from app.api import router as api_router
 from app.core.config import get_settings
@@ -27,6 +28,7 @@ app.include_router(api_router, prefix="/api")
 @app.on_event("startup")
 def on_startup():
     Base.metadata.create_all(bind=engine)
+    ensure_auth_user_schema()
     with SessionLocal() as db:
         seed_destinations(db)
 
@@ -39,3 +41,11 @@ def health():
 @app.get("/api/health", tags=["meta"])
 def api_health():
     return health()
+
+
+def ensure_auth_user_schema():
+    inspector = inspect(engine)
+    auth_user_columns = {column["name"] for column in inspector.get_columns("auth_users")}
+    if "first_name" not in auth_user_columns:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE auth_users ADD COLUMN first_name VARCHAR(80) DEFAULT ''"))
