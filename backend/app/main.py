@@ -21,6 +21,7 @@ app.add_middleware(
 )
 
 app.include_router(api_router)
+app.include_router(api_router, prefix="/api")
 
 
 @app.on_event("startup")
@@ -33,3 +34,8 @@ def on_startup():
 @app.get("/health", tags=["meta"])
 def health():
     return {"status": "ok", "environment": settings.environment}
+
+
+@app.get("/api/health", tags=["meta"])
+def api_health():
+    return health()
