@@ -11,6 +11,7 @@ class AuthUser(Base):
     __tablename__ = "auth_users"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    first_name: Mapped[str] = mapped_column(String(80), default="")
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     phone: Mapped[str] = mapped_column(String(20), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))

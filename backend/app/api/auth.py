@@ -17,6 +17,7 @@ settings = get_settings()
 
 
 class RegisterRequest(BaseModel):
+    first_name: constr(min_length=1, max_length=80)
     email: constr(min_length=5, max_length=255)
     phone: constr(min_length=8, max_length=20)
     password: constr(min_length=8, max_length=128)
@@ -51,8 +52,16 @@ def normalize_phone(phone: str) -> str:
     return normalized
 
 
+def normalize_first_name(first_name: str) -> str:
+    normalized = " ".join(first_name.strip().split())
+    if not normalized:
+        raise HTTPException(status_code=422, detail="First name is required")
+    return normalized
+
+
 @router.post("/register")
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
+    first_name = normalize_first_name(payload.first_name)
     email = normalize_email(payload.email)
     phone = normalize_phone(payload.phone)
     existing_user = db.scalar(select(AuthUser).where(AuthUser.email == email))
@@ -62,11 +71,23 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     if existing_phone is not None:
         raise HTTPException(status_code=409, detail="Phone number already registered")
 
-    user = AuthUser(email=email, phone=phone, password_hash=hash_password(payload.password), role=payload.role)
+    user = AuthUser(
+        first_name=first_name,
+        email=email,
+        phone=phone,
+        password_hash=hash_password(payload.password),
+        role=payload.role,
+    )
     db.add(user)
     db.commit()
     db.refresh(user)
-    return {"message": "Account created", "email": user.email, "phone": user.phone, "role": user.role}
+    return {
+        "message": "Account created",
+        "first_name": user.first_name,
+        "email": user.email,
+        "phone": user.phone,
+        "role": user.role,
+    }
 
 
 @router.post("/login")
@@ -75,7 +96,12 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     user = db.scalar(select(AuthUser).where(AuthUser.email == email))
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
-    return {"token": f"stub-jwt-token-{user.email}", "email": user.email, "role": user.role}
+    return {
+        "token": f"stub-jwt-token-{user.email}",
+        "first_name": user.first_name,
+        "email": user.email,
+        "role": user.role,
+    }
 
 
 @router.post("/forgot-password")

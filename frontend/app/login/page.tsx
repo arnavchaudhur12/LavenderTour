@@ -2,13 +2,16 @@
 
 import Link from 'next/link';
 import { FormEvent, Suspense, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
+import { useAuth } from '../components/AuthProvider';
 
 type Mode = 'login' | 'register' | 'forgot' | 'reset';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
 
 type FormState = {
+  firstName: string;
   email: string;
   password: string;
   phone: string;
@@ -17,6 +20,7 @@ type FormState = {
 };
 
 const initialState: FormState = {
+  firstName: '',
   email: '',
   password: '',
   phone: '',
@@ -33,6 +37,8 @@ export default function LoginPage() {
 }
 
 function LoginPageContent() {
+  const router = useRouter();
+  const { login: persistLogin, session } = useAuth();
   const searchParams = useSearchParams();
   const modeFromQuery = searchParams.get('mode');
   const resetTokenFromQuery = searchParams.get('token') ?? '';
@@ -59,13 +65,23 @@ function LoginPageContent() {
 
     try {
       if (mode === 'login') {
-        await callApi('/auth/login', { email: form.email, password: form.password });
+        const response = await callApi('/auth/login', { email: form.email, password: form.password });
+        persistLogin({
+          token: response.token,
+          firstName: response.first_name ?? '',
+          email: response.email,
+          role: response.role,
+        });
         setMessage('Login successful. Your session token has been issued by the backend.');
+        setTimeout(() => {
+          router.push('/');
+        }, 400);
       } else if (mode === 'register') {
         if (form.password !== form.confirmPassword) {
           throw new Error('Passwords do not match');
         }
         await callApi('/auth/register', {
+          first_name: form.firstName,
           email: form.email,
           phone: form.phone,
           password: form.password,
@@ -92,6 +108,28 @@ function LoginPageContent() {
     }
   }
 
+  if (session) {
+    return (
+      <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(124,72,245,0.16),_transparent_28%),linear-gradient(180deg,#f7f1e8_0%,#fffdf9_100%)] text-night">
+        <div className="mx-auto flex min-h-screen max-w-3xl items-center justify-center px-6 py-8">
+          <div className="w-full rounded-[2rem] border border-night/10 bg-white/90 p-8 text-center shadow-[0_24px_70px_rgba(15,16,36,0.12)]">
+            <p className="text-sm uppercase tracking-[0.25em] text-lavender-700">Already signed in</p>
+            <h1 className="mt-3 text-4xl font-semibold text-night">Welcome back, {session.displayName}.</h1>
+            <p className="mt-4 text-base text-night/70">
+              You are already logged in with {session.email}. We keep you signed in on this browser until you log out or the
+              session expires.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <Link href="/" className="rounded-full bg-lavender-600 px-5 py-3 text-sm font-medium text-white hover:bg-lavender-700">
+                Go to homepage
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(124,72,245,0.16),_transparent_28%),linear-gradient(180deg,#f7f1e8_0%,#fffdf9_100%)] text-night">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-8">
@@ -110,8 +148,8 @@ function LoginPageContent() {
               <p className="text-sm uppercase tracking-[0.3em] text-lavender-700">Account access</p>
               <h1 className="text-4xl font-semibold leading-tight md:text-5xl">{title}</h1>
               <p className="max-w-xl text-lg text-night/70">
-                Sign in with your registered email and password. New users should create a profile with email, phone number,
-                and password before continuing.
+                Sign in with your registered email and password. New users should create a profile with first name, email,
+                phone number, and password before continuing.
               </p>
             </div>
 
@@ -119,7 +157,7 @@ function LoginPageContent() {
               <p className="mb-3 text-sm text-night/60">Flow</p>
               <ul className="space-y-2 text-sm text-night/80">
                 <li>• Existing user: log in with email and password</li>
-                <li>• New user: create profile with phone, email, and password</li>
+                <li>• New user: create profile with first name, phone, email, and password</li>
                 <li>• Forgot password: reset link goes to the registered email address</li>
               </ul>
             </div>
@@ -139,6 +177,16 @@ function LoginPageContent() {
             </div>
 
             <form className="space-y-4" onSubmit={submit}>
+              {mode === 'register' && (
+                <Field
+                  label="First name"
+                  type="text"
+                  value={form.firstName}
+                  onChange={(value) => setForm((current) => ({ ...current, firstName: value }))}
+                  placeholder="Arnab"
+                />
+              )}
+
               {(mode === 'login' || mode === 'register' || mode === 'forgot') && (
                 <Field
                   label="Email address"
