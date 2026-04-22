@@ -22,8 +22,15 @@ body {
   margin: 0;
   min-height: 100vh;
   background: transparent;
+  color: #0f1024;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 .glow {
   box-shadow: 0 20px 80px rgba(124, 72, 245, 0.25);
+}
+
+::selection {
+  background: rgba(124, 72, 245, 0.28);
 }
