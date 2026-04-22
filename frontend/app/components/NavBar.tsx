@@ -21,6 +21,7 @@ export function NavBar() {
         <Link href="#forest">Forests</Link>
         <Link href="#beach">Beaches</Link>
         <Link href="#mountain">Mountains</Link>
+        <Link href="#abroad">Abroad</Link>
         <Link href="#india-destinations">Gallery</Link>
       </nav>
 
