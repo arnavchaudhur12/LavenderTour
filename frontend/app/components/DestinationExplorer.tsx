@@ -2,15 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { destinationSections, indiaDestinations, type DestinationEntry, type DestinationKind } from '../data/indiaDestinations';
+import { fetchWikimediaImages, type WikimediaImage } from '../lib/wikimedia';
 
-type WikimediaImage = {
-  title: string;
-  thumbUrl: string;
-  sourceUrl: string;
-  descriptionUrl: string;
-};
-
-const COMMONS_API_URL = 'https://commons.wikimedia.org/w/api.php';
 const IMAGE_LIMIT = 20;
 
 export function DestinationExplorer() {
@@ -221,68 +214,4 @@ function GalleryStatus({ text, error = false }: { text: string; error?: boolean 
       {text}
     </div>
   );
-}
-
-async function fetchWikimediaImages(categories: string[]): Promise<WikimediaImage[]> {
-  const collected = new Map<string, WikimediaImage>();
-
-  for (const category of categories) {
-    if (collected.size >= IMAGE_LIMIT) {
-      break;
-    }
-
-    const params = new URLSearchParams({
-      action: 'query',
-      format: 'json',
-      formatversion: '2',
-      generator: 'categorymembers',
-      gcmtitle: `Category:${category}`,
-      gcmtype: 'file',
-      gcmlimit: '25',
-      prop: 'imageinfo',
-      iiprop: 'url',
-      iiurlwidth: '1200',
-      origin: '*',
-    });
-
-    const response = await fetch(`${COMMONS_API_URL}?${params.toString()}`);
-    if (!response.ok) {
-      throw new Error('Could not reach Wikimedia Commons for image data.');
-    }
-
-    const data = (await response.json()) as {
-      query?: {
-        pages?: Array<{
-          title?: string;
-          imageinfo?: Array<{
-            thumburl?: string;
-            url?: string;
-            descriptionurl?: string;
-          }>;
-        }>;
-      };
-    };
-
-    const pages = data.query?.pages ?? [];
-    for (const page of pages) {
-      const info = page.imageinfo?.[0];
-      if (!page.title || !info?.thumburl || !info.url || !info.descriptionurl) {
-        continue;
-      }
-      if (collected.has(page.title)) {
-        continue;
-      }
-      collected.set(page.title, {
-        title: page.title,
-        thumbUrl: info.thumburl,
-        sourceUrl: info.url,
-        descriptionUrl: info.descriptionurl,
-      });
-      if (collected.size >= IMAGE_LIMIT) {
-        break;
-      }
-    }
-  }
-
-  return Array.from(collected.values()).slice(0, IMAGE_LIMIT);
 }

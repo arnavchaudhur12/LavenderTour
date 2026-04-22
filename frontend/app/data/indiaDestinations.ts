@@ -1,4 +1,4 @@
-export type DestinationKind = 'forest' | 'beach' | 'mountain';
+export type DestinationKind = 'forest' | 'beach' | 'mountain' | 'abroad';
 
 export type DestinationEntry = {
   slug: string;
@@ -34,6 +34,12 @@ export const destinationSections: {
     eyebrow: 'Mountain Destinations',
     title: 'Seven mountain escapes people actually ask for',
     intro: 'Hill stations and mountain towns with different moods: alpine, tea-country, colonial, and adventure-first.',
+  },
+  {
+    id: 'abroad',
+    eyebrow: 'Abroad Picks',
+    title: 'Country and region galleries beyond India',
+    intro: 'Three broad outbound collections for USA, Australia, and Europe with image-led browsing across well-known states and attractions.',
   },
 ];
 
@@ -247,5 +253,35 @@ export const indiaDestinations: DestinationEntry[] = [
     blurb: 'Munnar is a very sellable mountain product for couples and Kerala circuits because the landscape reads well even to non-adventure travelers.',
     bestFor: ['tea-country stays', 'couples', 'Kerala hills'],
     commonsCategories: ['Munnar', 'Tea plantations in Munnar'],
+  },
+  {
+    slug: 'usa',
+    title: 'United States',
+    kind: 'abroad',
+    state: 'North America',
+    tagline: 'Iconic state and city imagery across coasts, canyons, skylines, and parks.',
+    blurb: 'This gallery is designed as a broad USA discovery layer, with imagery spanning New York, California, national parks, and high-demand landmark cities.',
+    bestFor: ['city + parks', 'long-haul honeymoons', 'multi-state itineraries'],
+    commonsCategories: ['New York City', 'California', 'Grand Canyon National Park', 'Yosemite National Park', 'Golden Gate Bridge'],
+  },
+  {
+    slug: 'australia',
+    title: 'Australia',
+    kind: 'abroad',
+    state: 'Oceania',
+    tagline: 'Sydney icons, reef visuals, outback texture, and coastal states in one set.',
+    blurb: 'Australia works best as a broad visual collection because traveler demand usually spans multiple places: Sydney, Melbourne, Queensland, reef, and road-trip landscapes.',
+    bestFor: ['coastlines', 'city + nature', 'premium outbound trips'],
+    commonsCategories: ['Sydney', 'Melbourne', 'Queensland', 'Great Barrier Reef', 'Uluru'],
+  },
+  {
+    slug: 'europe',
+    title: 'Europe',
+    kind: 'abroad',
+    state: 'Europe',
+    tagline: 'A continent-scale gallery of capitals, alpine scenes, and landmark-heavy routes.',
+    blurb: 'Europe is intentionally grouped as a region because most travelers shop it as a circuit rather than a single-country product: cities, rail, alpine towns, and heritage icons.',
+    bestFor: ['multi-country tours', 'honeymoons', 'classic bucket-list trips'],
+    commonsCategories: ['Paris', 'Rome', 'Swiss Alps', 'Amsterdam', 'Santorini'],
   },
 ];
