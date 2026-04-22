@@ -68,8 +68,9 @@ export function HeroBackgroundSlideshow() {
           />
         ))
       ) : null}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(124,72,245,0.22),transparent_30%),radial-gradient(circle_at_top_right,rgba(255,204,128,0.14),transparent_26%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,253,249,0.54)_0%,rgba(255,253,249,0.68)_18%,rgba(255,253,249,0.76)_42%,rgba(255,253,249,0.88)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(18,11,36,0.46)_0%,rgba(27,16,43,0.24)_34%,rgba(64,39,19,0.18)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(124,72,245,0.28),transparent_28%),radial-gradient(circle_at_top_right,rgba(255,187,84,0.18),transparent_24%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,251,245,0.22)_0%,rgba(255,251,245,0.36)_18%,rgba(255,251,245,0.52)_42%,rgba(255,251,245,0.70)_100%)]" />
     </div>
   );
 }
