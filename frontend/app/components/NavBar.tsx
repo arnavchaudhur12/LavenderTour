@@ -18,10 +18,10 @@ export function NavBar() {
       </div>
 
       <nav className="hidden md:flex items-center gap-6 text-sm text-night/80">
-        <Link href="#india">India</Link>
-        <Link href="#international">International</Link>
-        <Link href="#wild">Wildlife</Link>
-        <Link href="#trek">Trekking</Link>
+        <Link href="#forest">Forests</Link>
+        <Link href="#beach">Beaches</Link>
+        <Link href="#mountain">Mountains</Link>
+        <Link href="#india-destinations">Gallery</Link>
       </nav>
 
       <div className="flex items-center gap-3 text-sm">
