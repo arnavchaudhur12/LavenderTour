@@ -6,10 +6,11 @@ import { QuoteCTA } from './components/QuoteCTA';
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen text-night">
+    <main className="relative min-h-screen text-night">
       <HeroBackgroundSlideshow />
-      <NavBar />
-      <div className="max-w-6xl mx-auto px-6 py-12 space-y-16">
+      <div className="relative z-10">
+        <NavBar />
+        <div className="max-w-6xl mx-auto px-6 py-12 space-y-16">
         <section className="grid gap-6 md:grid-cols-[1.1fr_0.9fr] items-start">
           <div className="space-y-4">
             <p className="text-sm uppercase tracking-[0.3em] text-lavender-700">Lavender Tour</p>
@@ -44,6 +45,7 @@ export default function HomePage() {
         <Survey />
         <DestinationGrid />
         <QuoteCTA />
+        </div>
       </div>
     </main>
   );
