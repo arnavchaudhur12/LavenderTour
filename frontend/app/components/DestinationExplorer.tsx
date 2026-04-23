@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { destinationGuides } from '../data/destinationGuides';
 import { destinationSections, indiaDestinations, type DestinationEntry, type DestinationKind } from '../data/indiaDestinations';
 import { fetchWikimediaImages, type WikimediaImage } from '../lib/wikimedia';
-
-const IMAGE_LIMIT = 20;
 
 export function DestinationExplorer() {
   const [activeDestination, setActiveDestination] = useState<DestinationEntry | null>(null);
@@ -19,28 +18,20 @@ export function DestinationExplorer() {
   );
 
   return (
-    <section className="space-y-10" id="india-destinations">
+    <section className="space-y-10" id="destinations-atlas">
       <div className="max-w-3xl space-y-3">
-        <p className="text-sm uppercase tracking-[0.22em] text-lavender-700">India destination atlas</p>
-        <h2 className="text-3xl font-semibold text-night md:text-4xl">Forests, beaches, and mountain stays with real image depth</h2>
-        <p className="text-base text-night/70 md:text-lg">
-          We’ve expanded the site with 21 India-first destinations. Open any place to browse up to 20 publicly available
-          images pulled from Wikimedia Commons, then use the itinerary form to turn that place into a quote request.
+        <p className="text-sm uppercase tracking-[0.22em] text-lavender-700">Destination atlas</p>
+        <h2 className="text-3xl font-semibold text-night md:text-4xl">Explore places first, then open the full travel brief</h2>
+        <p className="text-base text-night/75 md:text-lg">
+          Browse destinations by theme. Each place opens a detailed panel with arrival guidance and a visual gallery.
         </p>
       </div>
 
       {grouped.map((section) => (
-        <DestinationSection
-          key={section.id}
-          section={section}
-          activeSlug={activeDestination?.slug}
-          onSelect={setActiveDestination}
-        />
+        <DestinationSection key={section.id} section={section} activeSlug={activeDestination?.slug} onSelect={setActiveDestination} />
       ))}
 
-      {activeDestination ? (
-        <DestinationGallery destination={activeDestination} onClose={() => setActiveDestination(null)} />
-      ) : null}
+      {activeDestination ? <DestinationGallery destination={activeDestination} onClose={() => setActiveDestination(null)} /> : null}
     </section>
   );
 }
@@ -79,10 +70,7 @@ function DestinationSection({
               }`}
             >
               <div className="mb-4 flex items-center justify-between gap-3">
-                <span className="rounded-full bg-sand px-3 py-1 text-xs uppercase tracking-[0.18em] text-night/80">
-                  {destination.state}
-                </span>
-                <span className="text-xs font-medium text-lavender-700">20 public images</span>
+                <span className="rounded-full bg-sand px-3 py-1 text-xs uppercase tracking-[0.18em] text-night/80">{destination.state}</span>
               </div>
               <h4 className="text-xl font-semibold text-night">{destination.title}</h4>
               <p className="mt-2 text-sm font-medium text-night/80">{destination.tagline}</p>
@@ -112,6 +100,7 @@ function DestinationGallery({
   const [images, setImages] = useState<WikimediaImage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const guide = destinationGuides[destination.slug];
 
   useEffect(() => {
     let isCancelled = false;
@@ -124,7 +113,7 @@ function DestinationGallery({
         if (!isCancelled) {
           setImages(results);
           if (!results.length) {
-            setError('No public image set was returned for this destination.');
+            setError('No image gallery was returned for this destination yet.');
           }
         }
       } catch (err) {
@@ -164,53 +153,60 @@ function DestinationGallery({
           </button>
         </div>
 
-        <div className="px-6 py-6 md:px-8 md:py-8">
-          {loading ? <GalleryStatus text="Loading Wikimedia Commons gallery..." /> : null}
-          {error ? <GalleryStatus text={error} error /> : null}
-          {!loading && !error ? (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {images.map((image) => (
-                <a
-                  key={image.title}
-                  href={image.descriptionUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group overflow-hidden rounded-[1.5rem] border border-night/8 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(15,16,36,0.12)]"
-                >
-                  <div className="aspect-[4/3] overflow-hidden bg-sand">
-                    <img
-                      src={image.thumbUrl}
-                      alt={image.title.replace(/^File:/, '').replace(/_/g, ' ')}
-                      className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="space-y-2 p-4">
-                    <p className="line-clamp-2 text-sm font-medium text-night">
-                      {image.title.replace(/^File:/, '').replace(/_/g, ' ')}
-                    </p>
-                    <div className="flex items-center justify-between text-xs text-night/55">
-                      <span>Source: Wikimedia Commons</span>
-                      <span>Open</span>
+        <div className="space-y-8 px-6 py-6 md:px-8 md:py-8">
+          <section className="rounded-[1.75rem] border border-night/8 bg-white p-6 shadow-sm">
+            <p className="text-sm uppercase tracking-[0.2em] text-lavender-700">How to reach</p>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <TravelGuideCard label="Nearest airport / by flight" detail={guide?.byAir ?? 'Please confirm the best airport based on your final route.'} />
+              <TravelGuideCard label="Nearest station / by train" detail={guide?.byRail ?? 'Rail access depends on the route; we will guide you during planning.'} />
+              <TravelGuideCard label="By road / private car" detail={guide?.byRoad ?? 'A private road transfer is usually the easiest option.'} />
+              <TravelGuideCard label="Local transport" detail={guide?.localTransit ?? 'Local travel is usually managed by hotel transfers or private cabs.'} />
+            </div>
+          </section>
+
+          <section>
+            {loading ? <GalleryStatus text="Loading destination gallery..." /> : null}
+            {error ? <GalleryStatus text={error} error /> : null}
+            {!loading && !error ? (
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {images.map((image) => (
+                  <div key={image.title} className="overflow-hidden rounded-[1.5rem] border border-night/8 bg-white shadow-sm">
+                    <div className="aspect-[4/3] overflow-hidden bg-sand">
+                      <img
+                        src={image.thumbUrl}
+                        alt={image.title.replace(/^File:/, '').replace(/_/g, ' ')}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <p className="line-clamp-2 text-sm font-medium text-night">
+                        {image.title.replace(/^File:/, '').replace(/_/g, ' ')}
+                      </p>
                     </div>
                   </div>
-                </a>
-              ))}
-            </div>
-          ) : null}
+                ))}
+              </div>
+            ) : null}
+          </section>
         </div>
       </div>
     </div>
   );
 }
 
+function TravelGuideCard({ label, detail }: { label: string; detail: string }) {
+  return (
+    <div className="rounded-2xl border border-night/8 bg-sand/40 p-4">
+      <p className="text-xs uppercase tracking-[0.2em] text-lavender-700">{label}</p>
+      <p className="mt-2 text-sm leading-6 text-night/80">{detail}</p>
+    </div>
+  );
+}
+
 function GalleryStatus({ text, error = false }: { text: string; error?: boolean }) {
   return (
-    <div
-      className={`rounded-2xl px-4 py-4 text-sm ${
-        error ? 'border border-red-200 bg-red-50 text-red-700' : 'border border-night/8 bg-white text-night/70'
-      }`}
-    >
+    <div className={`rounded-2xl px-4 py-4 text-sm ${error ? 'border border-red-200 bg-red-50 text-red-700' : 'border border-night/8 bg-white text-night/70'}`}>
       {text}
     </div>
   );
