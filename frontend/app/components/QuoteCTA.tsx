@@ -2,18 +2,31 @@
 
 export function QuoteCTA() {
   return (
-    <section className="mt-16 bg-night text-white rounded-3xl p-8 md:p-10 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+    <section className="mt-16 flex flex-col items-start justify-between gap-6 rounded-3xl bg-night p-8 text-white md:flex-row md:items-center md:p-10">
       <div>
         <p className="text-sm uppercase tracking-[0.25em] text-lavender-200">Talk to a person</p>
         <h3 className="text-3xl font-semibold">Ready to move? Get a curated quote.</h3>
-        <p className="text-sm text-white/80 max-w-xl">
-          Connect on WhatsApp, Instagram, or email. A travel expert will refine your plan and share pricing within business hours.
+        <p className="max-w-xl text-sm text-white/80">
+          Reach our support team directly on WhatsApp or email. Every enquiry can also be sent to{' '}
+          <span className="font-semibold text-white">helpdesk@lavendertour.in</span> and our team will respond within
+          business hours.
         </p>
       </div>
       <div className="flex flex-wrap gap-3 text-sm">
-        <button className="px-4 py-3 rounded-full bg-lavender-500 hover:bg-lavender-600 text-night font-semibold">WhatsApp</button>
-        <button className="px-4 py-3 rounded-full bg-white text-night font-semibold">Instagram</button>
-        <button className="px-4 py-3 rounded-full border border-white/40 hover:bg-white/10 font-semibold">Email us</button>
+        <a
+          href="https://wa.me/919830462675"
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-full bg-lavender-500 px-4 py-3 font-semibold text-night transition-colors hover:bg-lavender-600"
+        >
+          WhatsApp support
+        </a>
+        <a
+          href="mailto:helpdesk@lavendertour.in"
+          className="rounded-full border border-white/40 px-4 py-3 font-semibold transition-colors hover:bg-white/10"
+        >
+          Email helpdesk@lavendertour.in
+        </a>
       </div>
     </section>
   );
