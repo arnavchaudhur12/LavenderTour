@@ -7,7 +7,7 @@ import { fetchWikimediaImages, type WikimediaImage } from '../lib/wikimedia';
 const IMAGE_LIMIT = 20;
 
 export function DestinationExplorer() {
-  const [activeDestination, setActiveDestination] = useState<DestinationEntry | null>(indiaDestinations[0] ?? null);
+  const [activeDestination, setActiveDestination] = useState<DestinationEntry | null>(null);
 
   const grouped = useMemo(
     () =>
@@ -64,7 +64,7 @@ function DestinationSection({
         <p className="max-w-2xl text-sm text-night/65 md:text-base">{section.intro}</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {section.items.map((destination) => {
           const isActive = activeSlug === destination.slug;
           return (
@@ -74,22 +74,22 @@ function DestinationSection({
               onClick={() => onSelect(destination)}
               className={`rounded-[1.75rem] border p-5 text-left transition-all ${
                 isActive
-                  ? 'border-lavender-500 bg-white shadow-[0_22px_60px_rgba(124,72,245,0.18)]'
-                  : 'border-night/8 bg-white/72 hover:-translate-y-0.5 hover:border-night/15 hover:bg-white hover:shadow-[0_16px_40px_rgba(15,16,36,0.08)]'
+                  ? 'border-lavender-500 bg-white shadow-[0_24px_70px_rgba(124,72,245,0.20)]'
+                  : 'border-night/12 bg-white shadow-[0_20px_52px_rgba(15,16,36,0.12)] hover:-translate-y-0.5 hover:border-night/20 hover:bg-white hover:shadow-[0_24px_60px_rgba(15,16,36,0.16)]'
               }`}
             >
               <div className="mb-4 flex items-center justify-between gap-3">
-                <span className="rounded-full bg-sand px-3 py-1 text-xs uppercase tracking-[0.18em] text-night/70">
+                <span className="rounded-full bg-sand px-3 py-1 text-xs uppercase tracking-[0.18em] text-night/80">
                   {destination.state}
                 </span>
                 <span className="text-xs font-medium text-lavender-700">20 public images</span>
               </div>
               <h4 className="text-xl font-semibold text-night">{destination.title}</h4>
-              <p className="mt-2 text-sm text-night/70">{destination.tagline}</p>
-              <p className="mt-4 text-sm leading-6 text-night/75">{destination.blurb}</p>
+              <p className="mt-2 text-sm font-medium text-night/80">{destination.tagline}</p>
+              <p className="mt-4 text-sm leading-6 text-night/85">{destination.blurb}</p>
               <div className="mt-5 flex flex-wrap gap-2">
                 {destination.bestFor.map((item) => (
-                  <span key={item} className="rounded-full border border-night/8 px-3 py-1 text-xs text-night/65">
+                  <span key={item} className="rounded-full border border-night/10 bg-white px-3 py-1 text-xs text-night/75">
                     {item}
                   </span>
                 ))}
